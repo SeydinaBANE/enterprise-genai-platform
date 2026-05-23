@@ -1,5 +1,14 @@
 # Enterprise GenAI Platform
 
+[![CI](https://github.com/SeydinaBANE/enterprise-genai-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/SeydinaBANE/enterprise-genai-platform/actions/workflows/ci.yml)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
+[![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![Docker](https://img.shields.io/badge/docker-ready-2496ED?logo=docker&logoColor=white)](./Dockerfile)
+[![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-instrumented-425cc7?logo=opentelemetry)](https://opentelemetry.io/)
+[![Azure](https://img.shields.io/badge/Azure-deployable-0078D4?logo=microsoftazure&logoColor=white)](./infra/azure/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
 Production-grade GenAI platform demo showcasing RAG, multi-agent orchestration, MCP, observability, and security — built for the Ogmah GenAI engineer position.
 
 ## Architecture
@@ -99,6 +108,37 @@ curl -X POST http://localhost:8000/agent/run \
 | Prometheus | http://localhost:9090 |
 | Grafana | http://localhost:3000 |
 | Jaeger | http://localhost:16686 |
+
+## Deployment
+
+### Local (Docker Compose)
+```bash
+make docker-up   # API + ChromaDB + Prometheus + Grafana + Jaeger
+```
+
+### Azure (production)
+Full infrastructure-as-code with Bicep: Container Apps, Azure OpenAI, AI Search, Key Vault, Managed Identity.
+
+```bash
+# Deploy infrastructure
+az deployment group create \
+  --resource-group rg-genai-prod \
+  --template-file infra/azure/main.bicep \
+  --parameters environment=prod jwtSecretKey="$(openssl rand -hex 32)"
+
+# Build & push image
+az acr login --name <ACR_NAME>
+docker build -t <ACR_LOGIN_SERVER>/enterprise-genai-platform:latest --push .
+```
+
+→ Full guide: [`infra/azure/DEPLOY.md`](./infra/azure/DEPLOY.md)
+
+```
+Azure Container Apps ── Azure OpenAI (gpt-4o)
+        │              ── Azure AI Search (hybrid)
+        │              ── Azure Key Vault (secrets)
+        └── Managed Identity (zero stored credentials)
+```
 
 ## Development
 
