@@ -33,7 +33,7 @@ class BM25Retriever:
         scores = self._bm25.get_scores(tokens)
 
         ranked = sorted(
-            zip(scores, self._corpus),
+            zip(scores, self._corpus, strict=False),
             key=lambda x: x[0],
             reverse=True,
         )

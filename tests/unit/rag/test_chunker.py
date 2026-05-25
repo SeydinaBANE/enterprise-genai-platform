@@ -1,7 +1,6 @@
 import uuid
 
 import pytest
-
 from src.core.models import Document
 from src.rag.indexing.chunker import chunk_document
 
@@ -11,7 +10,7 @@ def sample_doc() -> Document:
     return Document(
         id=uuid.uuid4(),
         title="Test Doc",
-        content="First paragraph with some content.\n\nSecond paragraph with more content.\n\nThird paragraph.",
+        content="First paragraph with some content.\n\nSecond paragraph with more content.\n\nThird paragraph.",  # noqa: E501
         source="test.txt",
     )
 

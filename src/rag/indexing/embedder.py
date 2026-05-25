@@ -18,7 +18,7 @@ async def embed_chunks(chunks: list[Chunk], client: ILLMClient) -> list[Chunk]:
         batch_embeddings = await client.embed(batch)
         embeddings.extend(batch_embeddings)
 
-    for chunk, embedding in zip(chunks, embeddings):
+    for chunk, embedding in zip(chunks, embeddings, strict=False):
         chunk.embedding = embedding
 
     logger.info("chunks_embedded", count=len(chunks))

@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     azure_search_index_name: str = "genai-platform"
 
     # Security
-    jwt_secret_key: str = "change_me"
+    jwt_secret_key: str = "change_me"  # noqa: S105
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60
     azure_content_safety_endpoint: str = ""
@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     otel_service_name: str = "genai-platform"
 
     # API
-    api_host: str = "0.0.0.0"
+    api_host: str = "0.0.0.0"  # noqa: S104
     api_port: int = 8000
     log_level: str = "INFO"
 

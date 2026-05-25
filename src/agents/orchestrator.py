@@ -3,10 +3,10 @@ from __future__ import annotations
 import time
 from typing import Any
 
+import litellm
 from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.graph import END, StateGraph
 from langgraph.prebuilt import ToolNode
-import litellm
 
 from src.agents.state import AgentState
 from src.agents.tools.code_exec_tool import execute_python
@@ -35,7 +35,7 @@ Instructions:
 """
 
 
-def _build_graph() -> Any:
+def _build_graph() -> Any:  # noqa: ANN401
     tool_node = ToolNode(TOOLS)
 
     async def agent_node(state: AgentState) -> AgentState:
@@ -48,7 +48,10 @@ def _build_graph() -> Any:
 
         response = await litellm.acompletion(
             model=settings.llm_model,
-            messages=[{"role": m.type if hasattr(m, "type") else "user", "content": m.content} for m in messages],
+            messages=[
+                {"role": m.type if hasattr(m, "type") else "user", "content": m.content}
+                for m in messages
+            ],
             tools=[
                 {
                     "type": "function",
@@ -65,11 +68,12 @@ def _build_graph() -> Any:
         )
 
         from langchain_core.messages import AIMessage
+
         msg = response.choices[0].message
         ai_message = AIMessage(content=msg.content or "")
 
         if msg.tool_calls:
-            ai_message.tool_calls = [  # type: ignore[attr-defined]
+            ai_message.tool_calls = [
                 {
                     "id": tc.id,
                     "name": tc.function.name,
@@ -82,9 +86,9 @@ def _build_graph() -> Any:
 
     def should_continue(state: AgentState) -> str:
         last = state["messages"][-1]
-        if hasattr(last, "tool_calls") and last.tool_calls:  # type: ignore[union-attr]
+        if hasattr(last, "tool_calls") and last.tool_calls:
             return "tools"
-        return END
+        return str(END)
 
     graph = StateGraph(AgentState)
     graph.add_node("agent", agent_node)
@@ -99,7 +103,7 @@ def _build_graph() -> Any:
 _graph = None
 
 
-def get_graph() -> Any:
+def get_graph() -> Any:  # noqa: ANN401
     global _graph
     if _graph is None:
         _graph = _build_graph()
@@ -112,7 +116,14 @@ async def run_agent(task: str) -> AgentResult:
     graph = get_graph()
 
     result = await graph.ainvoke(
-        {"task": task, "messages": [], "retrieved_context": [], "intermediate_steps": [], "final_answer": "", "next": ""},
+        {
+            "task": task,
+            "messages": [],
+            "retrieved_context": [],
+            "intermediate_steps": [],
+            "final_answer": "",
+            "next": "",
+        },
     )
 
     messages = result.get("messages", [])
@@ -124,7 +135,9 @@ async def run_agent(task: str) -> AgentResult:
         for m in messages
     ]
 
-    logger.info("agent_run_done", task_len=len(task), steps=len(steps), latency_ms=round(latency_ms, 2))
+    logger.info(
+        "agent_run_done", task_len=len(task), steps=len(steps), latency_ms=round(latency_ms, 2)
+    )
 
     return AgentResult(
         task=task,

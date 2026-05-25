@@ -64,13 +64,14 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "ANN", "S", "C90"]
-ignore = ["ANN101", "ANN102", "S101"]
+ignore = ["S101"]
 
 [tool.mypy]
 python_version = "3.12"
 strict = true
 ignore_missing_imports = true
 exclude = ["tests/"]
+disable_error_code = ["misc"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from src.core.models import Role
 from src.observability.logging import get_logger
-from src.rag.indexing.loader import load_pdf_bytes, load_text
+from src.rag.indexing.loader import load_pdf_bytes
 from src.security.rbac import TokenPayload, require_role
 
 logger = get_logger(__name__)
@@ -38,9 +38,11 @@ async def index_document(
         document = load_pdf_bytes(data, filename)
     else:
         from src.core.models import Document
+
         document = Document(title=filename, content=data.decode("utf-8"), source=filename)
 
     from src.api.dependencies import get_indexing_pipeline
+
     pipeline = get_indexing_pipeline()
     chunks = await pipeline.index(document)
 

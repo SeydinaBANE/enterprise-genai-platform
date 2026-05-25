@@ -41,7 +41,7 @@ class ChromaRetriever:
         latency = time.perf_counter() - start
         retrieval_latency_seconds.labels(store="chroma").observe(latency)
 
-        chunks = []
+        chunks: list[Chunk] = []
         if not results["ids"] or not results["ids"][0]:
             return chunks
 

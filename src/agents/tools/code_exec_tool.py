@@ -16,7 +16,7 @@ MAX_OUTPUT_CHARS = 2000
 
 @tool
 def execute_python(code: str) -> str:
-    """Execute a small Python code snippet and return the output. Safe sandbox — no I/O or imports."""
+    """Execute a small Python snippet and return stdout. Safe sandbox — no I/O or imports."""
     for forbidden in _FORBIDDEN:
         if forbidden in code:
             logger.warning("code_exec_blocked", reason=forbidden)
@@ -30,7 +30,23 @@ def execute_python(code: str) -> str:
     stdout = io.StringIO()
     local_vars: dict[str, object] = {}
     try:
-        safe_builtins = {"print": print, "len": len, "range": range, "int": int, "float": float, "str": str, "list": list, "dict": dict, "sum": sum, "min": min, "max": max, "abs": abs, "round": round, "enumerate": enumerate, "zip": zip}
+        safe_builtins = {
+            "print": print,
+            "len": len,
+            "range": range,
+            "int": int,
+            "float": float,
+            "str": str,
+            "list": list,
+            "dict": dict,
+            "sum": sum,
+            "min": min,
+            "max": max,
+            "abs": abs,
+            "round": round,
+            "enumerate": enumerate,
+            "zip": zip,
+        }
         with contextlib.redirect_stdout(stdout):
             exec(code, {"__builtins__": safe_builtins}, local_vars)  # noqa: S102
         output = stdout.getvalue()

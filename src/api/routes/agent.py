@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
@@ -29,7 +29,7 @@ class AgentRequest(BaseModel):
 class AgentResponse(BaseModel):
     task: str
     output: str
-    steps: list[dict]
+    steps: list[dict[str, Any]]
     model: str
     latency_ms: float
 

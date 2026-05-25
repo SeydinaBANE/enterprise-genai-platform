@@ -5,7 +5,6 @@ import asyncio
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
-
 from src.observability.logging import get_logger
 
 logger = get_logger(__name__)
@@ -53,11 +52,13 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:  # type: i
 
     if name == "rag_query":
         from src.agents.tools.rag_tool import rag_query
+
         result = await rag_query.ainvoke({"question": arguments["question"]})
         return [TextContent(type="text", text=result)]
 
     if name == "run_agent":
         from src.agents.orchestrator import run_agent
+
         result = await run_agent(arguments["task"])
         return [TextContent(type="text", text=result.output)]
 

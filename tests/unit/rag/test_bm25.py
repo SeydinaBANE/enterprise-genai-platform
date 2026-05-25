@@ -1,8 +1,7 @@
 import uuid
 
 import pytest
-
-from src.core.models import Chunk, Document
+from src.core.models import Chunk
 from src.rag.retrieval.bm25 import BM25Retriever
 
 
@@ -10,10 +9,26 @@ from src.rag.retrieval.bm25 import BM25Retriever
 def chunks() -> list[Chunk]:
     doc_id = uuid.uuid4()
     return [
-        Chunk(document_id=doc_id, content="Azure OpenAI provides GPT models for enterprise use", chunk_index=0),
-        Chunk(document_id=doc_id, content="LangGraph enables stateful multi-agent orchestration", chunk_index=1),
-        Chunk(document_id=doc_id, content="RAG combines retrieval with language generation", chunk_index=2),
-        Chunk(document_id=doc_id, content="Docker containers simplify deployment and scaling", chunk_index=3),
+        Chunk(
+            document_id=doc_id,
+            content="Azure OpenAI provides GPT models for enterprise use",
+            chunk_index=0,
+        ),
+        Chunk(
+            document_id=doc_id,
+            content="LangGraph enables stateful multi-agent orchestration",
+            chunk_index=1,
+        ),
+        Chunk(
+            document_id=doc_id,
+            content="RAG combines retrieval with language generation",
+            chunk_index=2,
+        ),
+        Chunk(
+            document_id=doc_id,
+            content="Docker containers simplify deployment and scaling",
+            chunk_index=3,
+        ),
     ]
 
 

@@ -3,6 +3,7 @@
 Usage:
     uv run python scripts/create_token.py --role editor
 """
+
 from __future__ import annotations
 
 import sys

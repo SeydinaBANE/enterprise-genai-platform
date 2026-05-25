@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
@@ -25,7 +25,7 @@ class QueryRequest(BaseModel):
 class QueryResponse(BaseModel):
     question: str
     answer: str
-    sources: list[dict]
+    sources: list[dict[str, Any]]
     model: str
     latency_ms: float
 
@@ -44,6 +44,7 @@ async def query(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
     from src.api.dependencies import get_hybrid_retriever, get_llm_client
+
     retriever = get_hybrid_retriever()
     llm = get_llm_client()
 
@@ -63,7 +64,11 @@ async def query(
         question=result.question,
         answer=result.answer,
         sources=[
-            {"content": rc.chunk.content[:200], "score": rc.score, "source": rc.chunk.metadata.get("source")}
+            {
+                "content": rc.chunk.content[:200],
+                "score": rc.score,
+                "source": rc.chunk.metadata.get("source"),
+            }
             for rc in result.sources
         ],
         model=result.model,

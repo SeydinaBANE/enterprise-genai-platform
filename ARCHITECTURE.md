@@ -104,28 +104,28 @@ class IIndexer(Protocol):
 ## ADR (Architecture Decision Records)
 
 ### ADR-001: OpenRouter over direct Azure OpenAI
-**Decision:** Use OpenRouter via `litellm` as the LLM gateway.  
-**Reason:** Allows model switching (GPT-4o, Claude, Mistral) without code changes; same interface in dev and prod.  
+**Decision:** Use OpenRouter via `litellm` as the LLM gateway.
+**Reason:** Allows model switching (GPT-4o, Claude, Mistral) without code changes; same interface in dev and prod.
 **Trade-off:** Extra network hop; mitigated by async calls and retry logic.
 
 ### ADR-002: ChromaDB for local, Azure AI Search for prod
-**Decision:** Abstract vector store behind `IRetriever`; swap implementation via config.  
-**Reason:** Zero-cost local development; production uses Azure AI Search for hybrid search + enterprise SLA.  
+**Decision:** Abstract vector store behind `IRetriever`; swap implementation via config.
+**Reason:** Zero-cost local development; production uses Azure AI Search for hybrid search + enterprise SLA.
 **Trade-off:** Feature parity not 100% (Azure AI Search has richer filtering).
 
 ### ADR-003: LangGraph over raw LangChain
-**Decision:** Use LangGraph for agent orchestration.  
-**Reason:** Explicit state machine makes control flow testable and debuggable; supports streaming natively.  
+**Decision:** Use LangGraph for agent orchestration.
+**Reason:** Explicit state machine makes control flow testable and debuggable; supports streaming natively.
 **Trade-off:** More boilerplate than simple chain; worth it for production-grade agents.
 
 ### ADR-004: MCP as external interface layer
-**Decision:** Expose RAG and agent capabilities as MCP tools.  
-**Reason:** Allows any MCP-compatible client (Claude Desktop, Cursor, etc.) to consume platform capabilities without API changes.  
+**Decision:** Expose RAG and agent capabilities as MCP tools.
+**Reason:** Allows any MCP-compatible client (Claude Desktop, Cursor, etc.) to consume platform capabilities without API changes.
 **Trade-off:** Additional server to maintain; standardized protocol reduces integration cost.
 
 ### ADR-005: RAGAS for evaluation
-**Decision:** Use RAGAS metrics as quality gates in CI.  
-**Reason:** Standardized, LLM-based metrics for faithfulness, relevance, precision — correlate with human judgement.  
+**Decision:** Use RAGAS metrics as quality gates in CI.
+**Reason:** Standardized, LLM-based metrics for faithfulness, relevance, precision — correlate with human judgement.
 **Trade-off:** Eval runs cost tokens; run only on PR to main, not every commit.
 
 ---

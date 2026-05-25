@@ -1,4 +1,5 @@
 """Index sample documents for local development and testing."""
+
 from __future__ import annotations
 
 import asyncio
@@ -97,7 +98,7 @@ async def main() -> None:
         print(f"  → {len(chunks)} chunks indexed")
 
     print("\n✅ Sample documents indexed. Run `make run` and test with:")
-    print('  curl -X POST http://localhost:8000/query \\')
+    print("  curl -X POST http://localhost:8000/query \\")
     print('    -H "Content-Type: application/json" \\')
     print('    -d \'{"question": "What is RAG?"}\'')
 

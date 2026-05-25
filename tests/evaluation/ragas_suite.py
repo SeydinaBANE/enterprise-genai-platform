@@ -2,16 +2,15 @@
 
 Requires OPENROUTER_API_KEY and a running indexed knowledge base.
 """
-from __future__ import annotations
 
-import asyncio
+from __future__ import annotations
 
 import pytest
 
 EVAL_PAIRS = [
     {
         "question": "What is RAG?",
-        "ground_truth": "RAG stands for Retrieval-Augmented Generation, combining retrieval with language generation.",
+        "ground_truth": "RAG stands for Retrieval-Augmented Generation, combining retrieval with language generation.",  # noqa: E501
     },
     {
         "question": "What frameworks are used for agent orchestration?",

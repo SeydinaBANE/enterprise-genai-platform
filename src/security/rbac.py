@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import datetime, timedelta
 from typing import Annotated
 
@@ -45,7 +46,7 @@ def get_current_user(
     return _decode_token(credentials.credentials)
 
 
-def require_role(*roles: Role):  # type: ignore[no-untyped-def]
+def require_role(*roles: Role) -> Callable[..., TokenPayload]:
     def dependency(user: Annotated[TokenPayload, Depends(get_current_user)]) -> TokenPayload:
         if user.role not in roles:
             raise HTTPException(

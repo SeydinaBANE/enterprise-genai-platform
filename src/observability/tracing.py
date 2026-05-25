@@ -36,7 +36,7 @@ def get_tracer() -> trace.Tracer:
 def traced(span_name: str) -> Callable[..., Any]:
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
-        async def wrapper(*args: Any, **kwargs: Any) -> Any:
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:  # noqa: ANN401
             tracer = get_tracer()
             with tracer.start_as_current_span(span_name) as span:
                 span.set_attribute("function", func.__qualname__)
