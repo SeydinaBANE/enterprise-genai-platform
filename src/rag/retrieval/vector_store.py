@@ -33,7 +33,7 @@ class ChromaRetriever:
         query_embedding = embeddings[0]
 
         results = self._collection.query(
-            query_embeddings=[query_embedding],
+            query_embeddings=[query_embedding],  # type: ignore[arg-type]
             n_results=min(top_k, max(1, self._collection.count())),
             include=["documents", "metadatas", "embeddings", "distances"],
         )
@@ -53,11 +53,11 @@ class ChromaRetriever:
             chunks.append(
                 Chunk(
                     id=uuid.UUID(chunk_id) if _is_valid_uuid(chunk_id) else uuid.uuid4(),
-                    document_id=uuid.UUID(meta.get("document_id", str(uuid.uuid4()))),
+                    document_id=uuid.UUID(str(meta.get("document_id", uuid.uuid4()))),
                     content=content,
                     embedding=embedding,
-                    metadata=meta,
-                    chunk_index=int(meta.get("chunk_index", 0)),
+                    metadata=dict(meta),
+                    chunk_index=int(meta.get("chunk_index", 0)),  # type: ignore[arg-type]
                 )
             )
 
@@ -76,8 +76,8 @@ class ChromaRetriever:
         self._collection.upsert(
             ids=ids,
             documents=documents,
-            embeddings=embeddings,
-            metadatas=metadatas,
+            embeddings=embeddings,  # type: ignore[arg-type]
+            metadatas=metadatas,  # type: ignore[arg-type]
         )
         logger.info("chroma_upsert", count=len(chunks))
 

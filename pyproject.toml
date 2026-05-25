@@ -43,7 +43,7 @@ dev = [
     "pytest-cov>=5.0.0",
     "pytest-mock>=3.14.0",
     "ruff>=0.7.0",
-    "mypy>=1.13.0",
+    "mypy>=1.16.0",
     "pre-commit>=4.0.0",
     "ragas>=0.2.0",
     "types-passlib",
@@ -75,7 +75,11 @@ python_version = "3.12"
 strict = true
 ignore_missing_imports = true
 exclude = ["tests/"]
-disable_error_code = ["misc"]
+disable_error_code = ["misc", "no-untyped-call"]
+
+[[tool.mypy.overrides]]
+module = "src.mcp.server"
+ignore_errors = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

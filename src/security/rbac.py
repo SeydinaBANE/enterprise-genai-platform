@@ -24,7 +24,7 @@ class TokenPayload(BaseModel):
 def create_token(subject: str, role: Role) -> str:
     expire = datetime.utcnow() + timedelta(minutes=settings.jwt_expire_minutes)
     payload = {"sub": subject, "role": role.value, "exp": expire}
-    return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
+    return str(jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm))
 
 
 def _decode_token(token: str) -> TokenPayload:

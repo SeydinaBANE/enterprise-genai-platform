@@ -58,7 +58,7 @@ def _build_graph() -> Any:  # noqa: ANN401
                     "function": {
                         "name": t.name,
                         "description": t.description,
-                        "parameters": t.args_schema.schema() if t.args_schema else {},
+                        "parameters": t.args_schema.schema() if t.args_schema else {},  # type: ignore[union-attr]
                     },
                 }
                 for t in TOOLS

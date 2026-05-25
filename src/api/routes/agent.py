@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+from collections.abc import AsyncIterator
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -56,7 +57,7 @@ async def agent_run(
 
 
 def _stream_agent(task: str, user_sub: str) -> StreamingResponse:
-    async def generator() -> object:
+    async def generator() -> AsyncIterator[str]:
         result = await run_agent(task)
         words = result.output.split()
         for word in words:

@@ -968,7 +968,7 @@ requires-dist = [
     { name = "langgraph", specifier = ">=0.2.0" },
     { name = "litellm", specifier = ">=1.44.0" },
     { name = "mcp", specifier = ">=1.0.0" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.13.0" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.16.0" },
     { name = "opentelemetry-exporter-otlp-proto-grpc", specifier = ">=1.27.0" },
     { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.48b0" },
     { name = "opentelemetry-sdk", specifier = ">=1.27.0" },
