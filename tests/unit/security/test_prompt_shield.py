@@ -1,4 +1,5 @@
 import pytest
+
 from src.security.prompt_shield import detect_injection
 
 

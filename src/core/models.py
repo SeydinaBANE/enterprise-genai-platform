@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
 
-class Role(str, Enum):
+class Role(StrEnum):
     viewer = "viewer"
     editor = "editor"
     admin = "admin"

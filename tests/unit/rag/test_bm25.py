@@ -1,6 +1,7 @@
 import uuid
 
 import pytest
+
 from src.core.models import Chunk
 from src.rag.retrieval.bm25 import BM25Retriever
 

@@ -1,6 +1,7 @@
 import uuid
 
 import pytest
+
 from src.core.models import Document
 from src.rag.indexing.chunker import chunk_document
 
