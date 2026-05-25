@@ -7,15 +7,15 @@ Demo project for the Ogmah GenAI engineer position. Full-stack RAG + agentic pla
 
 ## Tech stack
 - **Python 3.12** — managed with `uv`
-- **LLM gateway** — OpenRouter via `litellm` (env: `OPENROUTER_API_KEY`)
+- **LLM gateway** — OpenRouter via `litellm` (env: `OPENROUTER_API_KEY`); defaults to `openai/gpt-4o-mini` (LLM) and `openai/text-embedding-3-small` (embeddings)
 - **Vector store** — ChromaDB (local) / Azure AI Search (prod), auto-selected via `settings.use_azure_search`
 - **Agent framework** — LangGraph
 - **MCP** — `mcp` Python SDK, stdio transport
 - **API** — FastAPI + SSE streaming
 - **Observability** — OpenTelemetry + Prometheus + Grafana + Jaeger
-- **Security** — guardrails-ai + custom RBAC middleware
-- **Testing** — pytest + RAGAS
-- **Lint/format** — ruff + mypy
+- **Security** — custom RBAC + guardrails + prompt injection detection
+- **Testing** — pytest (asyncio auto mode) + RAGAS
+- **Lint/format** — ruff + mypy (strict)
 
 ## Key commands
 ```bash
@@ -34,6 +34,8 @@ make clean             # remove __pycache__, .coverage, .mypy_cache, etc.
 ```
 
 Single test: `uv run pytest tests/unit/rag/test_chunker.py -v`
+
+`pytest-asyncio` runs in **auto mode** — async test functions are collected automatically; no `@pytest.mark.asyncio` needed.
 
 Generate a JWT for local API testing:
 ```bash
@@ -66,11 +68,11 @@ All cross-layer dependencies are expressed as `Protocol` interfaces. Implementat
 ### RAG pipeline
 ```
 Indexing:   loader → chunker → embedder → ChromaRetriever (or AzureSearch)
-Retrieval:  ChromaRetriever (cosine) + BM25Retriever → RRF fusion → reranker → top-k chunks
+Retrieval:  ChromaRetriever (cosine) + BM25Retriever → RRF fusion (k=60) → reranker → top-k chunks
 Generation: chunks + prompt → LLMClient.complete() → QueryResult with citations
 ```
 Sub-modules: `src/rag/indexing/`, `src/rag/retrieval/`, `src/rag/generation/`.
-The `HybridRetriever` in `src/rag/retrieval/hybrid.py` wires vector + BM25 + RRF + reranker.
+`HybridRetriever` (`src/rag/retrieval/hybrid.py`) runs vector + BM25 at `2×top_k` then fuses via RRF. The reranker (`src/rag/retrieval/reranker.py`) is a query-token overlap heuristic — replace with a cross-encoder (e.g. `ms-marco-MiniLM`) for production.
 
 ### Agent orchestration (`src/agents/orchestrator.py`)
 Single LangGraph `StateGraph` with two nodes: `agent` (LLM with tool-calling) and `tools` (`ToolNode`). The graph loops until no tool calls remain. Registered tools:
@@ -78,13 +80,16 @@ Single LangGraph `StateGraph` with two nodes: `agent` (LLM with tool-calling) an
 - `web_search` — live web search
 - `execute_python` — sandboxed code execution
 
+The `agent_node` calls `litellm.acompletion` directly (bypasses `ILLMClient`); this is a known deviation from the abstraction layer.
+
 To add a tool: implement it as a LangChain `@tool` in `src/agents/tools/`, append it to the `TOOLS` list in `orchestrator.py`, add unit tests in `tests/unit/agents/`, and document it in `ARCHITECTURE.md`.
 
 ### API routes (`src/api/routes/`)
 - `GET /health` — liveness check
-- `POST /documents` — index a document (`editor`+ role)
-- `POST /query` — RAG query (`viewer`+ role)
-- `POST /agent` — multi-step agent run (`editor`+ role)
+- `GET /metrics` — Prometheus metrics scrape endpoint
+- `POST /documents/index` — index a document via multipart file upload; accepts PDF, TXT, MD (`editor`+ role)
+- `POST /query` — RAG query with optional `top_k` param (`viewer`+ role)
+- `POST /agent/run` — multi-step agent run; set `stream: true` in the JSON body for SSE (`editor`+ role)
 
 Singletons for all service dependencies are managed with `@lru_cache` in `src/api/dependencies.py`.
 
@@ -94,16 +99,22 @@ JWT auth + RBAC (`src/security/rbac.py`) → prompt injection shield (`src/secur
 RBAC roles: `viewer` (read-only), `editor` (index + agents), `admin` (full).
 
 ### Observability
-Use the `@traced("span.name")` decorator from `src/observability/tracing.py` on every async function that performs I/O. It creates an OTel span and records exceptions automatically.
+Use the `@traced("span.name")` decorator from `src/observability/tracing.py` on every **async** function that performs I/O — the decorator only wraps `async` functions. It creates an OTel span and records exceptions automatically.
 
 Use `get_logger(__name__)` from `src/observability/logging.py` (structlog); never `print` or stdlib `logging` directly.
 
+Prometheus metrics are defined in `src/observability/metrics.py` as module-level counters/histograms (`llm_calls_total`, `llm_latency_seconds`, `token_usage_total`, `retrieval_latency_seconds`).
+
 ## Coding conventions
 - Clean Architecture: no imports from outer layers into `src/core/`
-- All LLM calls go through `src/core/llm_client.py` (never call `litellm` directly from business logic)
+- All LLM calls go through `src/core/llm_client.py` (never call `litellm` directly from business logic — except the known deviation in `orchestrator.py`)
 - Every public function must have a type annotation
 - Instrument every LLM + retrieval call with `@traced`
+- The `settings` singleton is importable from `src.core.config`; never instantiate `Settings()` directly
 
 ## Environment
 Copy `.env.example` → `.env` and fill in your values before running anything.
 Key vars: `OPENROUTER_API_KEY`, `JWT_SECRET_KEY` (default `change_me`), `CHROMA_PERSIST_DIR`.
+Azure vars (`AZURE_SEARCH_ENDPOINT` + `AZURE_SEARCH_API_KEY`) enable Azure AI Search automatically when both are set.
+
+When running `make docker-up`, services are available at: API :8000 (docs at `/docs`), Prometheus :9090, Grafana :3000, Jaeger :16686.
